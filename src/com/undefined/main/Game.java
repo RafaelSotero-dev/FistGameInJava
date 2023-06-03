@@ -14,6 +14,7 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.image.BufferStrategy;
 import java.awt.image.BufferedImage;
+import java.awt.image.DataBufferInt;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -50,7 +51,7 @@ public class Game extends Canvas implements Runnable, KeyListener, MouseListener
 	public static boolean saveGame = false;
 	public static double mx;
 	public static double my;
-	
+	public int[] pixels;
 	private Menu menu;
 	
 	private InputStream stream = ClassLoader.getSystemClassLoader().getResourceAsStream("pixel.ttf");
@@ -65,6 +66,7 @@ public class Game extends Canvas implements Runnable, KeyListener, MouseListener
 	private Thread thread;
 	private static JFrame jFrame;
 	private BufferedImage layer =  new BufferedImage(WIDTH, HEIGHT, BufferedImage.TYPE_INT_RGB);
+	
 	
 	public Game() {
 //		Sound.BACKGROUNDSOUND.loop();		
@@ -82,6 +84,7 @@ public class Game extends Canvas implements Runnable, KeyListener, MouseListener
 			e.printStackTrace();
 		}
 		
+		pixels = ((DataBufferInt)layer.getRaster().getDataBuffer()).getData();
 		entities = new ArrayList<Entity>();
 		enemies = new ArrayList<Enemy>();
 		projectile = new ArrayList<Projectile>();
@@ -174,10 +177,23 @@ public class Game extends Canvas implements Runnable, KeyListener, MouseListener
 			menu.tick();
 		} else if (gameStatus == "PAUSE") {
 			menu.tick();
-		}
+		} 
 		
 
 	}
+	 
+//	public void buildRedBoxWithPixels(int xoffset, int yoffset) {
+//		for (int xx = 0; xx < 40 ; xx++) {
+//			for (int yy = 0; yy < 40 ; yy++) {
+//				int xxOff = xx + xoffset;
+//				int yyOff = yy + yoffset;
+//				if (xxOff < 0 || yyOff < 0 || xxOff >= WIDTH || yyOff >= HEIGHT)
+//					continue;
+//				
+//				pixels[xxOff + (yyOff * WIDTH)] = 0xFFFF0E0A;
+//			}
+//		}
+//	}
 	
 	public void render() {
 		BufferStrategy bs = getBufferStrategy();
@@ -201,6 +217,7 @@ public class Game extends Canvas implements Runnable, KeyListener, MouseListener
 		ui.render(g);
 		
 		g.dispose();
+//		buildRedBoxWithPixels(50, 80);
 		g = bs.getDrawGraphics();
 		g.drawImage(layer, 0, 0, WIDTH*SCALE, HEIGHT*SCALE, null);
 		g.setFont(new Font("arial", Font.BOLD, 17));

@@ -128,7 +128,6 @@ public class World {
 		}
 		
 		return false;
-		
 	}
 	
 	public void render(Graphics g) {

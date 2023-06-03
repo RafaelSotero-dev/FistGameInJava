@@ -16,8 +16,9 @@ public class Enemy extends Entity{
 	private int frames = 0, maxFrames = 5, index = 0, maxIndex = 3;
 	private static final int RIGHT_DIR = 0, LEFT_DIR = 1;
 	private int dir = RIGHT_DIR;
-	private double speed = 0.5 ;
+	private double speed = 0.8 ;
 	private boolean isDamaged = false;
+	private boolean firstHit = false;
 	private int damagedSpriteDuration = 0;
 	
 	private BufferedImage[] rightEnemy;
@@ -41,37 +42,40 @@ public class Enemy extends Entity{
 	}
 
 	public void tick() {
-		if (isCollidingWithPlayer() == false) {
-			if (x <  Game.player.getX() && World.isFreeToPass((int) (x+speed), getY(), 0)
-					&& !isColliding((int) (x+speed), getY())) {
-				moved = true;
-				dir = RIGHT_DIR;
-				x+=speed;
-			}
-			else if (x > Game.player.getX() && World.isFreeToPass((int) (x-speed), getY(), 0)
-					&& !isColliding((int) (x-speed), getY())) {
-				moved = true;
-				dir = LEFT_DIR;
-				x-=speed;
-			}
-			
-			if (y <  Game.player.getY() && World.isFreeToPass(getX(), (int) (y+speed), 0)
-					&& !isColliding(getX(), (int) (y+speed))) {
-				moved = true;
-				y+=speed;
-			}
-			else if (y > Game.player.getY() && World.isFreeToPass(getX(), (int) (y-speed), 0)
-					&& !isColliding(getX(), (int) (y-speed))) {
-				moved = true;
-				y-=speed;
-			}
-		} else {
-			if (Game.rand.nextInt(100) < 15) {
-				Game.player.life-= Game.rand.nextInt(5);
-				Sound.HITSOUND.play();
-				Game.player.isDamaged = true;
+		if (this.calculateDistance(getX(), getY(), Game.player.getX(), Game.player.getY()) < 100 || firstHit) {
+			if (isCollidingWithPlayer() == false) {
+				if (x <  Game.player.getX() && World.isFreeToPass((int) (x+speed), getY(), 0)
+						&& !isColliding((int) (x+speed), getY())) {
+					moved = true;
+					dir = RIGHT_DIR;
+					x+=speed;
+				}
+				else if (x > Game.player.getX() && World.isFreeToPass((int) (x-speed), getY(), 0)
+						&& !isColliding((int) (x-speed), getY())) {
+					moved = true;
+					dir = LEFT_DIR;
+					x-=speed;
+				}
+				
+				if (y <  Game.player.getY() && World.isFreeToPass(getX(), (int) (y+speed), 0)
+						&& !isColliding(getX(), (int) (y+speed))) {
+					moved = true;
+					y+=speed;
+				}
+				else if (y > Game.player.getY() && World.isFreeToPass(getX(), (int) (y-speed), 0)
+						&& !isColliding(getX(), (int) (y-speed))) {
+					moved = true;
+					y-=speed;
+				}
+			} else {
+				if (Game.rand.nextInt(100) < 15) {
+					Game.player.life-= Game.rand.nextInt(5);
+					Sound.HITSOUND.play();
+					Game.player.isDamaged = true;
+				}
 			}
 		}
+		
 		
 		if (moved) {
 			frames++;
@@ -112,6 +116,7 @@ public class Enemy extends Entity{
 			if (e instanceof Projectile) {
 				if (Entity.isColliding(this, e)) {
 					isDamaged = true;
+					firstHit = true;
 					life--;
 					Sound.HITSOUND.play();
 					Game.projectile.remove(i);
